@@ -1,47 +1,16 @@
-from pandas import DataFrame
 import openpyxl
 from openpyxl.utils.cell import get_column_letter
-from openpyxl.styles import (
-                        PatternFill, Border, Side,
-                        Alignment, Font, GradientFill
-                        )
+from openpyxl.styles import (Border, Side, Alignment, Font)
+
 
 def translate_file(name_file: str, group_data: dict, months: list) -> None:
     wb = openpyxl.load_workbook(filename=name_file)
     sheet = wb["Sheet1"]
-    font = Font(
-        name='Times New Roman',
-        size=12,
-        bold=False,
-        italic=False,
-        vertAlign=None,
-        underline='none',
-        strike=False,
-        color='FF000000'
-    )
-    alignment = Alignment(
-        horizontal='general',
-        vertical='bottom',
-        text_rotation=0,
-        wrap_text=False,
-        shrink_to_fit=False,
-        indent=0
-    )
-    border = Border(
-        left=Side(border_style=None, color='FF000000'),
-        right=Side(border_style=None, color='FF000000'),
-        top=Side(border_style=None, color='FF000000'),
-        bottom=Side(border_style=None, color='FF000000'),
-        diagonal=Side(border_style=None, color='FF000000'),
-        diagonal_direction=0,
-        outline=Side(border_style=None, color='FF000000'),
-        vertical=Side(border_style=None, color='FF000000'),
-        horizontal=Side(border_style=None, color='FF000000')
-    )
-
+    last_row = 0
     for i in range(1, 32):
         letter = get_column_letter(i)
-        sheet.column_dimensions[letter].width = 3
+        sheet.column_dimensions[letter].width = 4
+
     letter1 = "{}1".format(get_column_letter(1))
     letter2 = "{}2".format(get_column_letter(1))
     letter3 = "{}3".format(get_column_letter(1))
@@ -59,11 +28,9 @@ def translate_file(name_file: str, group_data: dict, months: list) -> None:
         letter = "{}7".format(get_column_letter(i))
         sheet[letter].border = Border(top=thins, bottom=thins, left=thins, right=thins)
     for j in range(len(months)):
-
         for i in range(1, 34):
             letter = "{}{}".format(get_column_letter(i), j * 4 + 1 + 7)
             sheet[letter].border = Border(top=thins, bottom=thins, left=thins, right=thins)
-
             letter = "{}{}".format(get_column_letter(i), j * 4 + 1 + 8)
             sheet[letter].border = Border(top=thins, bottom=thins, left=thins, right=thins)
             letter = "{}{}".format(get_column_letter(i), j * 4 + 1 + 9)
@@ -84,8 +51,34 @@ def translate_file(name_file: str, group_data: dict, months: list) -> None:
     sheet["AF{}".format(last_row + 1)] = "=SUM({})".format(letter)
     letter = "AG8:AG{}".format(last_row)
     sheet["AG{}".format(last_row + 1)] = "=SUM({})".format(letter)
+    for i in range(1, 34):
+        letter = "{}{}".format(get_column_letter(i), last_row + 1)
+        sheet[letter].border = Border(top=thins, bottom=thins, left=thins, right=thins)
+    letter = "A{}".format(last_row)
+    i = 1
+    while sheet[letter].value != None and i < 33:
+        i += 1
+        letter = "{}{}".format(get_column_letter(i), last_row)
 
-
+    last_cell_1 = "{}{}".format(get_column_letter(i - 1), last_row + 1)
+    last_cell_2 = "{}{}".format(get_column_letter(i - 2), last_row + 1)
+    sheet[last_cell_2].value = "к"
+    sheet[last_cell_2].font = Font(bold=True)
+    sheet[last_cell_1].value = "э"
+    sheet[last_cell_1].font = Font(bold=True)
+    for i in range(1, last_row + 5):
+        for j in range(1, 35):
+            letter = "{}{}".format(get_column_letter(j), i)
+            sheet[letter].font = Font(name='Times New Roman', size=12)
+        sheet.row_dimensions[i].height = 15
+    letter = "A{}".format(last_row + 4)
+    sheet[letter].value = "Преподаватель {}".format(group_data['teacher'])
+    sheet[letter].font = Font(name='Times New Roman', size=12)
+    letter = "A{}".format(last_row + 5)
+    sheet[letter].value = "Количество человек {}".format(group_data['people'])
+    sheet[letter].font = Font(name='Times New Roman', size=12)
+    sheet['A1'].font = Font(bold=True, name='Times New Roman', size=12)
+    sheet['A3'].font = Font(bold=True, name='Times New Roman', size=12)
     name_file_out = "{}-{}-{}.xlsx".format(group_data['profession'], group_data["date_start"], group_data["total_hour"])
 
     wb.save(name_file_out)

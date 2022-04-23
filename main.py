@@ -33,6 +33,6 @@ if __name__ == "__main__":
     date_start, date_end_theory, date_start_practice, date_end_practice, consultation, exam, date_out, total, time\
         = raschet_pr.dates(date1, total_t, t_pr, t_k, t_e)
     name_file, months = transformations.table_xls(date_start, date_end_theory, date_start_practice, date_end_practice,
-                                          consultation, exam, date_out, total_t, t_pr, group_data, t_k, t_e,
-                                          economy_teacher, economy)
+                                                  consultation, exam, date_out, total_t, t_pr, group_data, t_k, t_e,
+                                                  economy_teacher, economy)
     translate_excel.translate_file(name_file, group_data, months)
