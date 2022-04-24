@@ -13,6 +13,54 @@ def pr_date(month: str) -> str:
     return result
 
 
+def result_dates(day: str, month: str, dates: list) -> list:
+    flag = 0
+    result = []
+
+    for symbol in dates:
+
+        month_dates = symbol.split('.')[1]
+        day_dates = symbol.split('.')[2]
+        if int(month_dates) == int(month) and int(day_dates) == int(day):
+            flag = 1
+            result.append(symbol)
+        elif flag == 1:
+            result.append(symbol)
+    return result
+
+
+def result_dates_out(time_t: int, result_1: list) -> list:
+    hours = 0
+    if time_t % 8 != 0:
+        time_total = (time_t // 8) * 8 + 8
+    else:
+        time_total = time_t
+    result = []
+    for symbol in result_1:
+        hours += 8
+        if hours <= time_total:
+            result.append(symbol)
+    return result
+
+
+def theory_day(result_2: list, time_pr: int) -> tuple:
+    if time_pr % 8 != 0:
+        count = time_pr // 8 + 1
+    else:
+        count = time_pr // 8
+    result = result_2[0:count]
+    date_end = result[len(result) - 1]
+    return date_end, 8 - time_pr % 8
+
+
+def practice_day(total: int, result_2, hour_exz, hour_consul, hour_day) -> str:
+    if total % 8 != 0:
+        count = total // 8 + 1
+    else:
+        count = total // 8
+    return result_2[count - 1]
+
+
 day_list = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18",
             "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"]
 month_list = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
@@ -22,40 +70,17 @@ def dates(start_date: str, time_t: int, time_pr: int, hour_consul: int, hour_exz
     with open("cal.txt", 'r') as name:
         text = name.read()
     result = text.split(", ")
-    start_date = ".".join(start_date.split('.')[::-1])
-    flag = 0
-    total = 0  # все время. для расчета
-    date_out = []
-    date_pr = ''
-    data_t = ''
-    total_time = day_theory_func(time_t)
-    day_consultation = day_theory_func(hour_consul)
-    day_practice = day_theory_func(time_t - time_pr - hour_exz - hour_consul)
-    day_theory = day_theory_func(time_pr)
-    days = day_practice + day_theory + day_consultation + 1
-    if days != total_time:
-        print("не совпадает")
-    for sym in result:
-        if sym == start_date:
-            flag = 1
-            total = 8
-            date_out.append(sym)
-        else:
-            if flag == 1:
-                total += 8
-                if total <= time_t:
-                    date_out.append(sym)
-                    if total == time_pr:
-                        data_t = sym
-                elif (time_t - total) <= 8:
-                    date_out.append(sym)
-                    flag = 0
-    if total > time_pr:
-        date_pr = date_out[len(date_out) - 3]
-    print(" Теория с {} по {}".format(start_date, date_out[day_theory - 1]))
-    print(" Практика с {} по {}".format(date_out[day_theory], date_pr))
-    print(" Консультация {}".format(date_out[len(date_out) - 2]))
-    print(" Экзамен {}".format(date_out[len(date_out) - 1]))
-    result = (pr_date(start_date), pr_date(date_out[day_theory - 1]), pr_date(date_out[day_theory]), pr_date(date_pr),
-              pr_date(date_out[len(date_out) - 2]), pr_date(date_out[len(date_out) - 1]), date_out, total_time, time_t)
-    return result
+    result_1 = result_dates(start_date.split('.')[0], start_date.split('.')[1], result)
+    result_2 = result_dates_out(time_t, result_1)
+    date_start = result_2[0]
+    consultation = result_2[len(result_2)-2]
+    exam = result_2[len(result_2)-1]
+    date_end_theory, hour_day = theory_day(result_2, time_pr)
+    if time_pr % 8 != 0:
+        date_start_practice = date_end_theory
+    else:
+        date_start_practice = result_2[result_2.index(date_end_theory) + 1]
+    practice = time_t - time_pr - hour_exz - hour_consul
+    date_end_practice = practice_day(practice, result_2[result_2.index(date_start_practice):], hour_exz, hour_consul, hour_day)
+    return date_start, date_end_theory, date_start_practice, date_end_practice, consultation, exam, result_2, time_t, time_pr
+

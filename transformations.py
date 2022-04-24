@@ -1,11 +1,21 @@
 import openpyxl
 from pandas import DataFrame
+import datetime
 
 
 def pr_mon(mon: str) -> str:
     months = {'01': 'январь', '02': 'февраль', '03': 'март', '04': 'апрель', '05': 'май', '06': 'июнь', '07': 'июль',
               '08': 'август', '09': 'сентябрь', '10': 'октябрь', '11': 'ноябрь', '12': 'декабрь'}
     return months[mon]
+
+
+def to_be(d: int, month: str) -> bool:
+    try:
+        datetime.date(day=d, month=int(month), year=2022)
+
+    except ValueError:
+        return False
+    return True
 
 
 def count_month(date_in: list) -> list:
@@ -43,22 +53,30 @@ def table_xls(date_start: str, date_end_theory: str, date_start_practice: str, d
                 my_dict[str(d)].append("Месяц {}".format(pr_mon(months[y - 1])))
             else:
                 my_dict[str(d)].append('')
-            my_dict[str(d)].append(d)
+            if to_be(d, months[y - 1]):
+                my_dict[str(d)].append(d)
+            else:
+                my_dict[str(d)].append('')
             if date_start <= date_under(d, months[y - 1]) <= last_day:
-                my_dict[str(d)].append(1)
-                my_dict[str(d)].append('В')
+                if to_be(d, months[y - 1]):
+                    my_dict[str(d)].append(1)
+                    my_dict[str(d)].append('В')
+                else:
+                    my_dict[str(d)].append('')
+                    my_dict[str(d)].append("")
 
             else:
                 my_dict[str(d)].append('')
                 my_dict[str(d)].append("")
-    my_dict['часов'] = ["" for _ in range(1, 17)]
-    my_dict['дней'] = ["" for _ in range(1, 17)]
+    my_dict['часов'] = ["" for _ in range(1, len(months) * 4 + 1)]
+    my_dict['дней'] = ["" for _ in range(1, len(months) * 4 + 1)]
     # print(my_dict)
     for day in date_out:
         day_date = str(int(day.split('.')[2]))
         month_date = day.split('.')[1]
         number = (months.index(month_date) * 4) + 3
         my_dict[day_date][number] = 8
+    print(my_dict)
     g = DataFrame(my_dict)
     m = {}
     for i, mon in enumerate(months):

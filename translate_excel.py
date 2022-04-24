@@ -59,13 +59,13 @@ def translate_file(name_file: str, group_data: dict, months: list) -> None:
     while sheet[letter].value != None and i < 33:
         i += 1
         letter = "{}{}".format(get_column_letter(i), last_row)
-
-    last_cell_1 = "{}{}".format(get_column_letter(i - 1), last_row + 1)
-    last_cell_2 = "{}{}".format(get_column_letter(i - 2), last_row + 1)
-    sheet[last_cell_2].value = "к"
-    sheet[last_cell_2].font = Font(bold=True)
-    sheet[last_cell_1].value = "э"
-    sheet[last_cell_1].font = Font(bold=True)
+    if i > 2:
+        last_cell_1 = "{}{}".format(get_column_letter(i - 1), last_row + 1)
+        last_cell_2 = "{}{}".format(get_column_letter(i - 2), last_row + 1)
+        sheet[last_cell_2].value = "к"
+        sheet[last_cell_2].font = Font(bold=True)
+        sheet[last_cell_1].value = "э"
+        sheet[last_cell_1].font = Font(bold=True)
     for i in range(1, last_row + 5):
         for j in range(1, 35):
             letter = "{}{}".format(get_column_letter(j), i)
